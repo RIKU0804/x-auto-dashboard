@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
-  Home, Users, FileText, ScrollText, BookOpen, Newspaper, Menu, X, LogOut,
+  Home, Users, FileText, ScrollText, BookOpen, Newspaper, Menu, X, LogOut, Settings,
 } from "lucide-react";
 
 const xNav = [
@@ -66,6 +66,10 @@ export default function NavBar({ children }: { children: React.ReactNode }) {
         </div>
         */}
       </nav>
+
+      <div className="px-3 pb-2">
+        <NavItem href="/settings" label="設定" icon={Settings} />
+      </div>
 
       <div className="p-3" style={{ borderTop: "1px solid var(--border)" }}>
         <button
