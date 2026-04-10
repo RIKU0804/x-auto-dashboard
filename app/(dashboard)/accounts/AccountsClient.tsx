@@ -7,11 +7,23 @@ type Persona = {
   age: number | string;
   occupation: string;
   personality: string;
-  hobbies: string;
+  hobbies: string | string[];
   preferred_male_type: string;
   values: string;
   tone: string;
   post_style: string;
+};
+
+const DEFAULT_PERSONA: Persona = {
+  name: "さくら",
+  age: 22,
+  occupation: "カフェ店員",
+  personality: "おしとやか・照れ屋・年上好き",
+  hobbies: "読書, 料理, 映画鑑賞",
+  preferred_male_type: "落ち着いた40〜60代の男性",
+  values: "年上の男性の余裕や包容力に惹かれる",
+  tone: "やわらかく少し恥ずかしそうな話し方",
+  post_style: "日常のふとした瞬間をつぶやく",
 };
 
 type Account = {
@@ -73,17 +85,14 @@ export default function AccountsClient({ initialAccounts }: { initialAccounts: A
     setError("");
     const form = new FormData(e.currentTarget);
 
-    const persona: Persona = {
-      name: form.get("persona_name") as string,
-      age: Number(form.get("persona_age")) || 22,
-      occupation: form.get("persona_occupation") as string,
-      personality: form.get("persona_personality") as string,
-      hobbies: form.get("persona_hobbies") as string,
-      preferred_male_type: form.get("persona_preferred_male_type") as string,
-      values: form.get("persona_values") as string,
-      tone: form.get("persona_tone") as string,
-      post_style: form.get("persona_post_style") as string,
-    };
+    let persona: Persona = DEFAULT_PERSONA;
+    try {
+      persona = JSON.parse(form.get("persona_json") as string);
+    } catch {
+      setError("ペルソナのJSON形式が正しくありません");
+      setSaving(false);
+      return;
+    }
 
     const data: Record<string, unknown> = {
       name: form.get("name") as string,
@@ -232,44 +241,13 @@ export default function AccountsClient({ initialAccounts }: { initialAccounts: A
               {/* Persona */}
               <div className="space-y-3">
                 <div className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(38,37,30,0.4)" }}>ペルソナ設定</div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <Label>名前</Label>
-                    <input name="persona_name" placeholder="さくら" defaultValue={p?.name ?? ""} style={inputStyle} />
-                  </div>
-                  <div>
-                    <Label>年齢</Label>
-                    <input name="persona_age" type="number" placeholder="22" defaultValue={p?.age ?? 22} style={inputStyle} />
-                  </div>
-                  <div>
-                    <Label>職業</Label>
-                    <input name="persona_occupation" placeholder="カフェ店員" defaultValue={p?.occupation ?? ""} style={inputStyle} />
-                  </div>
-                </div>
                 <div>
-                  <Label>性格</Label>
-                  <input name="persona_personality" placeholder="おしとやか・照れ屋・年上好き" defaultValue={p?.personality ?? ""} style={inputStyle} />
-                </div>
-                <div>
-                  <Label>趣味（カンマ区切り）</Label>
-                  <input name="persona_hobbies" placeholder="読書, 料理, 映画鑑賞"
-                    defaultValue={Array.isArray(p?.hobbies) ? (p.hobbies as string[]).join(", ") : (p?.hobbies ?? "")} style={inputStyle} />
-                </div>
-                <div>
-                  <Label>好きな男性像</Label>
-                  <input name="persona_preferred_male_type" placeholder="落ち着いた40〜60代の男性" defaultValue={p?.preferred_male_type ?? ""} style={inputStyle} />
-                </div>
-                <div>
-                  <Label>価値観</Label>
-                  <textarea name="persona_values" placeholder="年上の男性の余裕や包容力に惹かれる..." defaultValue={p?.values ?? ""} style={textareaStyle} />
-                </div>
-                <div>
-                  <Label>話し方</Label>
-                  <textarea name="persona_tone" placeholder="やわらかく少し恥ずかしそうな話し方..." defaultValue={p?.tone ?? ""} style={textareaStyle} />
-                </div>
-                <div>
-                  <Label>投稿スタイル</Label>
-                  <textarea name="persona_post_style" placeholder="日常のふとした瞬間をつぶやく..." defaultValue={p?.post_style ?? ""} style={textareaStyle} />
+                  <Label>ペルソナ（JSON）</Label>
+                  <textarea
+                    name="persona_json"
+                    style={{ ...textareaStyle, minHeight: 240, fontFamily: "monospace", fontSize: 12 }}
+                    defaultValue={JSON.stringify(p ?? DEFAULT_PERSONA, null, 2)}
+                  />
                 </div>
               </div>
 
