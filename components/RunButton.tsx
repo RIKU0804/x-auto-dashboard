@@ -19,11 +19,11 @@ export default function RunButton({ cycle, label }: { cycle: "morning" | "night"
     setTimeout(() => setState("idle"), 3000);
   };
 
-  const colors = {
-    idle: { bg: "var(--text)", color: "var(--bg)" },
-    loading: { bg: "var(--surface)", color: "var(--text-muted)" },
-    done: { bg: "rgba(22,163,74,0.12)", color: "var(--success)" },
-    error: { bg: "rgba(207,45,86,0.1)", color: "var(--danger)" },
+  const styles: Record<string, React.CSSProperties> = {
+    idle:    { background: "#26251e", color: "#f2f1ed" },
+    loading: { background: "#d5d4cf", color: "#26251e" },
+    done:    { background: "#dcfce7", color: "#15803d" },
+    error:   { background: "#fee2e2", color: "#b91c1c" },
   };
 
   const labels = {
@@ -37,8 +37,8 @@ export default function RunButton({ cycle, label }: { cycle: "morning" | "night"
     <button
       onClick={handleClick}
       disabled={state === "loading"}
-      className="w-full rounded-lg py-2.5 text-sm font-medium transition-all disabled:opacity-60"
-      style={colors[state]}
+      className="w-full rounded-lg py-2.5 text-sm font-semibold transition-all disabled:opacity-60"
+      style={styles[state]}
     >
       {labels[state]}
     </button>

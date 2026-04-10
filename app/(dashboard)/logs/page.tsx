@@ -2,10 +2,12 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-const levelColor = (l: string) =>
-  l === "error" ? "var(--danger)" : l === "warning" ? "var(--warning)" : "var(--success)";
-const levelLabel = (l: string) =>
-  l === "error" ? "❌ エラー" : l === "warning" ? "⚠️ 警告" : "✅ 情報";
+const levelStyle = (l: string) =>
+  l === "error"
+    ? { color: "#b91c1c", bg: "#fee2e2", label: "❌ エラー" }
+    : l === "warning"
+    ? { color: "#92400e", bg: "#fef3c7", label: "⚠️ 警告" }
+    : { color: "#15803d", bg: "#dcfce7", label: "✅ 情報" };
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -21,37 +23,39 @@ export default async function LogsPage() {
     .limit(100);
 
   return (
-    <div className="space-y-4">
-      <h1 className="font-semibold text-base">実行ログ</h1>
+    <div className="space-y-4 max-w-2xl">
+      <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#26251e" }}>実行ログ</h1>
       {!logs?.length ? (
-        <p className="text-sm text-center py-12" style={{ color: "var(--text-muted)" }}>
-          ログがありません
-        </p>
+        <p className="text-sm text-center py-12" style={{ color: "rgba(38,37,30,0.45)" }}>ログがありません</p>
       ) : (
         <div className="space-y-2">
-          {logs.map((log) => (
-            <div key={log.id} className="rounded-xl p-3"
-              style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium" style={{ color: levelColor(log.level) }}>
-                    {levelLabel(log.level)}
-                  </span>
-                  <span className="text-xs px-2 py-0.5 rounded"
-                    style={{ background: "rgba(38,37,30,0.06)", color: "var(--text-muted)", fontFamily: "monospace" }}>
-                    {log.module}
+          {logs.map((log) => {
+            const s = levelStyle(log.level);
+            return (
+              <div key={log.id} className="rounded-xl p-3"
+                style={{ background: "#ebeae5", border: "1px solid rgba(38,37,30,0.12)" }}>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                      style={{ background: s.bg, color: s.color }}>
+                      {s.label}
+                    </span>
+                    <span className="text-xs font-mono px-1.5 py-0.5 rounded"
+                      style={{ background: "rgba(38,37,30,0.08)", color: "rgba(38,37,30,0.7)" }}>
+                      {log.module}
+                    </span>
+                  </div>
+                  <span className="text-xs" style={{ color: "rgba(38,37,30,0.5)" }}>
+                    {formatDate(log.created_at)}
                   </span>
                 </div>
-                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  {formatDate(log.created_at)}
-                </span>
+                <p className="text-xs leading-relaxed" style={{ color: "#26251e" }}>{log.message}</p>
+                {log.account_id && (
+                  <p className="text-xs mt-1" style={{ color: "rgba(38,37,30,0.5)" }}>{log.account_id}</p>
+                )}
               </div>
-              <p className="text-xs leading-relaxed" style={{ color: "var(--text)" }}>{log.message}</p>
-              {log.account_id && (
-                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>{log.account_id}</p>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
