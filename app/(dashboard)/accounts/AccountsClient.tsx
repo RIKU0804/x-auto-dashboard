@@ -168,7 +168,9 @@ export default function AccountsClient({ initialAccounts }: { initialAccounts: A
                     required={f.required}
                     placeholder={f.placeholder}
                     defaultValue={editTarget && f.name !== "x_password"
-                      ? f.name === "keywords" ? (editTarget.keywords ?? []).join(", ") : (editTarget as Record<string, string>)[f.name]
+                      ? f.name === "keywords"
+                        ? (editTarget.keywords ?? []).join(", ")
+                        : (editTarget as unknown as Record<string, string>)[f.name] ?? ""
                       : ""}
                     style={inputStyle}
                   />
