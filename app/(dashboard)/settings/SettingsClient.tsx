@@ -19,24 +19,8 @@ const Label = ({ children }: { children: React.ReactNode }) => (
   </label>
 );
 
-const MODELS = [
-  { value: "google/gemini-flash-1.5", label: "Gemini Flash 1.5（推奨・激安）" },
-  { value: "google/gemini-2.0-flash-lite", label: "Gemini 2.0 Flash Lite（最安）" },
-  { value: "deepseek/deepseek-chat", label: "DeepSeek Chat（安・高品質）" },
-  { value: "moonshotai/kimi-k2.5", label: "Kimi K2.5（最新・高品質）" },
-  { value: "moonshotai/moonshot-v1-8k", label: "Kimi Moonshot v1 8k" },
-  { value: "moonshotai/moonshot-v1-32k", label: "Kimi Moonshot v1 32k" },
-  { value: "anthropic/claude-3-haiku", label: "Claude 3 Haiku" },
-  { value: "anthropic/claude-3.5-haiku", label: "Claude 3.5 Haiku（高品質）" },
-  { value: "custom", label: "カスタム入力..." },
-];
-
 export default function SettingsClient({ initialSettings }: { initialSettings: Record<string, string> }) {
   const [webhook, setWebhook] = useState(initialSettings["discord_webhook_url"] ?? "");
-  const savedModel = initialSettings["openrouter_model"] ?? "google/gemini-flash-1.5";
-  const isKnownModel = MODELS.some((m) => m.value === savedModel && m.value !== "custom");
-  const [model, setModel] = useState(isKnownModel ? savedModel : "custom");
-  const [customModel, setCustomModel] = useState(isKnownModel ? "" : savedModel);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -49,10 +33,8 @@ export default function SettingsClient({ initialSettings }: { initialSettings: R
     setError("");
     setSaved(false);
 
-    const finalModel = model === "custom" ? customModel.trim() : model;
     const { error: err } = await supabase.from("x_settings").upsert([
       { key: "discord_webhook_url", value: webhook },
-      { key: "openrouter_model", value: finalModel },
     ]);
 
     if (err) {
@@ -89,37 +71,6 @@ export default function SettingsClient({ initialSettings }: { initialSettings: R
             />
             <p className="text-xs mt-1.5" style={{ color: "rgba(38,37,30,0.45)" }}>
               Discord サーバー設定 → 連携サービス → ウェブフック から取得できます
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-xl p-5 space-y-4"
-          style={{ background: "#ebeae5", border: "1px solid rgba(38,37,30,0.12)" }}>
-          <div className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(38,37,30,0.4)" }}>
-            AI モデル設定
-          </div>
-          <div>
-            <Label>使用モデル（OpenRouter）</Label>
-            <select
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              style={{ ...inputStyle, cursor: "pointer" }}
-            >
-              {MODELS.map((m) => (
-                <option key={m.value} value={m.value}>{m.label}</option>
-              ))}
-            </select>
-            {model === "custom" && (
-              <input
-                type="text"
-                value={customModel}
-                onChange={(e) => setCustomModel(e.target.value)}
-                placeholder="例: moonshotai/moonshot-v1-8k"
-                style={{ ...inputStyle, marginTop: 8 }}
-              />
-            )}
-            <p className="text-xs mt-1.5" style={{ color: "rgba(38,37,30,0.45)" }}>
-              トレンド分析・投稿生成の両方に使用されます。OpenRouterのモデルIDを入力してください。
             </p>
           </div>
         </div>
