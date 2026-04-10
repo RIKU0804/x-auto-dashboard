@@ -3,20 +3,29 @@ import { useState } from "react";
 
 export default function RunButton({ cycle, label }: { cycle: "morning" | "night"; label: string }) {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [errMsg, setErrMsg] = useState("");
 
   const handleClick = async () => {
     setState("loading");
+    setErrMsg("");
     try {
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cycle }),
       });
-      setState(res.ok ? "done" : "error");
-    } catch {
+      if (res.ok) {
+        setState("done");
+      } else {
+        const json = await res.json().catch(() => ({}));
+        setErrMsg(json.error ?? `HTTP ${res.status}`);
+        setState("error");
+      }
+    } catch (e) {
+      setErrMsg(e instanceof Error ? e.message : "ネットワークエラー");
       setState("error");
     }
-    setTimeout(() => setState("idle"), 3000);
+    setTimeout(() => setState("idle"), 5000);
   };
 
   const styles: Record<string, React.CSSProperties> = {
@@ -34,13 +43,18 @@ export default function RunButton({ cycle, label }: { cycle: "morning" | "night"
   };
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={state === "loading"}
-      className="w-full rounded-lg py-2.5 text-sm font-semibold transition-all disabled:opacity-60"
-      style={styles[state]}
-    >
-      {labels[state]}
-    </button>
+    <div className="space-y-1">
+      <button
+        onClick={handleClick}
+        disabled={state === "loading"}
+        className="w-full rounded-lg py-2.5 text-sm font-semibold transition-all disabled:opacity-60"
+        style={styles[state]}
+      >
+        {labels[state]}
+      </button>
+      {state === "error" && errMsg && (
+        <p className="text-xs text-center" style={{ color: "#b91c1c" }}>{errMsg}</p>
+      )}
+    </div>
   );
 }
