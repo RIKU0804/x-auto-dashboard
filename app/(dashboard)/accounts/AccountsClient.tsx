@@ -144,14 +144,14 @@ export default function AccountsClient({ initialAccounts }: { initialAccounts: A
       {accounts.map((account) => (
         <div key={account.id} className="rounded-xl p-4 space-y-3"
           style={{ background: "#ebeae5", border: "1px solid rgba(38,37,30,0.12)" }}>
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="font-semibold text-sm" style={{ color: "#26251e" }}>{account.name}</div>
-              <div className="text-xs mt-0.5" style={{ color: "rgba(38,37,30,0.55)" }}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="font-semibold text-sm truncate" style={{ color: "#26251e" }}>{account.name}</div>
+              <div className="text-xs mt-0.5 truncate" style={{ color: "rgba(38,37,30,0.55)" }}>
                 {account.x_username} · {account.genre}
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <button onClick={() => toggleActive(account)}
                 className="text-xs px-3 py-1.5 rounded-lg font-semibold"
                 style={{
@@ -210,7 +210,7 @@ export default function AccountsClient({ initialAccounts }: { initialAccounts: A
               {/* Basic info */}
               <div className="space-y-3">
                 <div className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(38,37,30,0.4)" }}>基本情報</div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <Label>表示名</Label>
                     <input name="name" required placeholder="さくら" defaultValue={editTarget?.name ?? ""} style={inputStyle} />
@@ -220,7 +220,7 @@ export default function AccountsClient({ initialAccounts }: { initialAccounts: A
                     <input name="genre" required placeholder="恋愛・日常" defaultValue={editTarget?.genre ?? ""} style={inputStyle} />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <Label>Xユーザー名</Label>
                     <input name="x_username" required placeholder="@xxxx" defaultValue={editTarget?.x_username ?? ""} style={inputStyle} />

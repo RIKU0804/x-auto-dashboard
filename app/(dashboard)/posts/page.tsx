@@ -35,18 +35,18 @@ export default async function PostsPage() {
           {posts.map((p) => (
             <div key={p.id} className="rounded-xl p-4"
               style={{ background: "#ebeae5", border: "1px solid rgba(38,37,30,0.12)" }}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium" style={{ color: "rgba(38,37,30,0.55)" }}>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <span className="text-xs font-medium min-w-0 break-all" style={{ color: "rgba(38,37,30,0.55)" }}>
                   {p.account_id} · {p.cycle === "morning" ? "🌅 朝" : "🌙 夜"} · {formatDate(p.posted_at ?? p.created_at)}
                 </span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full shrink-0"
                   style={{ background: statusBg(p.status), color: statusColor(p.status) }}>
                   {statusLabel(p.status)}
                 </span>
               </div>
-              <p className="text-sm leading-relaxed" style={{ color: "#26251e" }}>{p.post_text}</p>
+              <p className="text-sm leading-relaxed break-words" style={{ color: "#26251e" }}>{p.post_text}</p>
               {p.error_message && (
-                <p className="text-xs mt-2" style={{ color: "#b91c1c" }}>{p.error_message}</p>
+                <p className="text-xs mt-2 break-words" style={{ color: "#b91c1c" }}>{p.error_message}</p>
               )}
             </div>
           ))}

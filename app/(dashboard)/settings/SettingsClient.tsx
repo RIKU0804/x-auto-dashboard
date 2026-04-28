@@ -19,11 +19,67 @@ const Label = ({ children }: { children: React.ReactNode }) => (
   </label>
 );
 
-export default function SettingsClient({ initialSettings }: { initialSettings: Record<string, string> }) {
+interface SettingsClientProps {
+  initialSettings: Record<string, string>;
+  initialAutoApprove?: string;
+  initialMorningTime?: string;
+  initialNightTime?: string;
+}
+
+async function patchSetting(key: string, value: string): Promise<void> {
+  const res = await fetch("/api/settings", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, value }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.error ?? `Failed to update ${key}`);
+  }
+}
+
+export default function SettingsClient({
+  initialSettings,
+  initialAutoApprove = "false",
+  initialMorningTime = "07:00",
+  initialNightTime = "20:00",
+}: SettingsClientProps) {
   const [webhook, setWebhook] = useState(initialSettings["discord_webhook_url"] ?? "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+
+  const [autoApprove, setAutoApprove] = useState(initialAutoApprove === "true");
+  const [morningTime, setMorningTime] = useState(initialMorningTime);
+  const [nightTime, setNightTime] = useState(initialNightTime);
+  const [scheduleSaved, setScheduleSaved] = useState(false);
+
+  const flashScheduleSaved = () => {
+    setScheduleSaved(true);
+    setTimeout(() => setScheduleSaved(false), 2000);
+  };
+
+  const handleAutoApproveChange = async (next: boolean) => {
+    setAutoApprove(next);
+    setError("");
+    try {
+      await patchSetting("auto_approve", next ? "true" : "false");
+      flashScheduleSaved();
+    } catch (e: unknown) {
+      setAutoApprove(!next);
+      setError(e instanceof Error ? e.message : "保存に失敗しました");
+    }
+  };
+
+  const handleTimeBlur = async (key: "morning_time" | "night_time", value: string) => {
+    setError("");
+    try {
+      await patchSetting(key, value);
+      flashScheduleSaved();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "保存に失敗しました");
+    }
+  };
 
   const supabase = createClient();
 
@@ -87,6 +143,78 @@ export default function SettingsClient({ initialSettings }: { initialSettings: R
           {saving ? "保存中..." : saved ? "✓ 保存しました" : "保存"}
         </button>
       </form>
+
+      <div
+        className="rounded-xl p-5 space-y-4"
+        style={{ background: "#ebeae5", border: "1px solid rgba(38,37,30,0.12)" }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(38,37,30,0.4)" }}>
+            投稿スケジュール
+          </div>
+          {scheduleSaved && (
+            <span className="text-xs font-semibold" style={{ color: "#15803d" }}>
+              ✓ 保存しました
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <div className="text-sm font-semibold" style={{ color: "#26251e" }}>
+              AI生成を自動承認する
+            </div>
+            <p className="text-xs mt-1" style={{ color: "rgba(38,37,30,0.55)" }}>
+              オンの場合、生成された投稿は自動的に承認され、次サイクルで投稿されます。
+              オフの場合は下書きとして保存され、手動承認が必要です。
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={autoApprove}
+            onClick={() => handleAutoApproveChange(!autoApprove)}
+            className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors"
+            style={{
+              background: autoApprove ? "#26251e" : "rgba(38,37,30,0.2)",
+            }}
+          >
+            <span
+              className="inline-block h-5 w-5 transform rounded-full bg-white transition-transform"
+              style={{
+                transform: autoApprove ? "translateX(22px)" : "translateX(2px)",
+              }}
+            />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label>朝サイクル時刻</Label>
+            <input
+              type="time"
+              value={morningTime}
+              onChange={(e) => setMorningTime(e.target.value)}
+              onBlur={(e) => handleTimeBlur("morning_time", e.target.value)}
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <Label>夜サイクル時刻</Label>
+            <input
+              type="time"
+              value={nightTime}
+              onChange={(e) => setNightTime(e.target.value)}
+              onBlur={(e) => handleTimeBlur("night_time", e.target.value)}
+              style={inputStyle}
+            />
+          </div>
+        </div>
+
+        <p className="text-xs" style={{ color: "rgba(38,37,30,0.45)" }}>
+          ※ GitHub Actions の cron は固定です。この設定は表示用です。
+        </p>
+      </div>
     </div>
   );
 }

@@ -14,5 +14,12 @@ export default async function SettingsPage() {
     settings[row.key] = row.value;
   }
 
-  return <SettingsClient initialSettings={settings} />;
+  return (
+    <SettingsClient
+      initialSettings={settings}
+      initialAutoApprove={settings["auto_approve"] ?? "false"}
+      initialMorningTime={settings["morning_time"] ?? "07:00"}
+      initialNightTime={settings["night_time"] ?? "20:00"}
+    />
+  );
 }

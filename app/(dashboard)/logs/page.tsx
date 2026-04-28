@@ -34,18 +34,18 @@ export default async function LogsPage() {
             return (
               <div key={log.id} className="rounded-xl p-3"
                 style={{ background: "#ebeae5", border: "1px solid rgba(38,37,30,0.12)" }}>
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 mb-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full shrink-0"
                       style={{ background: s.bg, color: s.color }}>
                       {s.label}
                     </span>
-                    <span className="text-xs font-mono px-1.5 py-0.5 rounded"
+                    <span className="text-xs font-mono px-1.5 py-0.5 rounded shrink-0"
                       style={{ background: "rgba(38,37,30,0.08)", color: "rgba(38,37,30,0.7)" }}>
                       {log.module}
                     </span>
                   </div>
-                  <span className="text-xs" style={{ color: "rgba(38,37,30,0.5)" }}>
+                  <span className="text-xs shrink-0" style={{ color: "rgba(38,37,30,0.5)" }}>
                     {formatDate(log.created_at)}
                   </span>
                 </div>

@@ -5,12 +5,16 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   Home, Users, FileText, ScrollText, BookOpen, Newspaper, Menu, X, LogOut, Settings,
+  Calendar, PenLine, BarChart3,
 } from "lucide-react";
 
 const xNav = [
   { href: "/", label: "ホーム", icon: Home, exact: true },
   { href: "/accounts", label: "Xアカウント", icon: Users },
   { href: "/posts", label: "X投稿", icon: FileText },
+  { href: "/calendar", label: "カレンダー", icon: Calendar },
+  { href: "/drafts", label: "下書き", icon: PenLine },
+  { href: "/analytics", label: "分析", icon: BarChart3 },
   { href: "/logs", label: "Xログ", icon: ScrollText },
 ];
 
@@ -107,13 +111,16 @@ export default function NavBar({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Mobile header */}
         <header className="flex h-14 items-center px-4 lg:hidden" style={{ background: "#f7f7f4", borderBottom: "1px solid var(--border)" }}>
-          <button onClick={() => setOpen(true)} className="p-2 rounded-lg" style={{ color: "var(--text-muted)" }}>
-            <Menu size={20} />
-          </button>
+          {open ? (
+            <button onClick={() => setOpen(false)} className="p-2 rounded-lg" style={{ color: "var(--text-muted)" }}>
+              <X size={20} />
+            </button>
+          ) : (
+            <button onClick={() => setOpen(true)} className="p-2 rounded-lg" style={{ color: "var(--text-muted)" }}>
+              <Menu size={20} />
+            </button>
+          )}
           <span className="ml-2 font-bold text-sm" style={{ color: "var(--text)" }}>Auto Dashboard</span>
-          <button onClick={() => setOpen(false)} className={`ml-auto p-2 rounded-lg lg:hidden ${open ? "" : "hidden"}`}>
-            <X size={20} />
-          </button>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">
